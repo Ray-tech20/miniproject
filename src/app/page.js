@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 const HomePage = () => {
     const [data, setData] = useState([]);
     const [error, setError] = useState(null);
+    const [ledStatus, setLedStatus] = useState(null); // State สำหรับเก็บ LED Status
 
     useEffect(() => {
         const fetchData = async () => {
@@ -20,11 +21,28 @@ const HomePage = () => {
             }
         };
 
+        const fetchLedStatus = async () => {
+            try {
+                const response = await fetch('/api/iot'); // Fetch LED status from /api/iot
+                if (!response.ok) {
+                    throw new Error('Failed to fetch LED status');
+                }
+                const ledData = await response.json();
+                setLedStatus(ledData.led_status); // Update state with fetched LED status
+            } catch (error) {
+                console.error('Error fetching LED status:', error);
+                setError(error);
+            }
+        };
+
         fetchData();
+        fetchLedStatus();
+
         const intervalId = setInterval(() => {
-          fetchData();
-        }, 5000); // 10 seconds
-    
+            fetchData();
+            fetchLedStatus();
+        }, 5000); // Fetch data every 5 seconds
+
         // Clear interval on component unmount
         return () => clearInterval(intervalId);
     }, []); // Empty dependency array means this effect runs once on mount
@@ -37,19 +55,15 @@ const HomePage = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({led_status: value }),
+                body: JSON.stringify({ led_status: value }),
             });
 
             if (!response.ok) {
                 throw new Error('Failed to update data');
             }
 
-            // อัปเดตสถานะการแสดงผลในหน้า
-            setData(prevData =>
-                prevData.map(item =>
-                    item.id === id ? { ...item, led_status: value } : item
-                )
-            );
+            // อัปเดต LED Status ทันทีหลังการอัปเดต
+            setLedStatus(value);
         } catch (error) {
             console.error('Error updating data:', error);
             setError(error);
@@ -72,7 +86,8 @@ const HomePage = () => {
                         <p><strong>LED Ultrasonic:</strong> {item.led_ultrasonic}</p>
                         <p><strong>LDR:</strong> {item.ldr}</p>
                         <p><strong>LED LDR Pin:</strong> {item.led_ldr_pin}</p>
-                        <p><strong>LED Status:</strong> {item.led_status}</p>
+                        {/* แสดง LED Status จากการเรียก API */}
+                        <p><strong>LED Status:</strong> {ledStatus !== null ? ledStatus : 'Loading...'}</p>
                         {/* ปุ่มเพื่ออัปเดตสถานะ LED */}
                         <button onClick={() => handleUpdate(item.id, 0)}>Set LED Status to 0</button>
                         <button onClick={() => handleUpdate(item.id, 1)}>Set LED Status to 1</button>
