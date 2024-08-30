@@ -25,12 +25,12 @@ export async function POST(request) {
     try {
         // Parse the request body as JSON
         const requestBody = await request.json();
-        const { ultrasonic, led_ultrasonic, ldr, led_ldr_pin } = requestBody;
+        const { SANG, SANG_LED, UNP, UNP_LED } = requestBody;
 
         // Insert new data into the table
         const result = await client.query(
-            'INSERT INTO "PHU021" (ultrasonic, led_ultrasonic, ldr, led_ldr_pin) VALUES ($1, $2, $3, $4) RETURNING *',
-            [ultrasonic, led_ultrasonic, ldr, led_ldr_pin]
+            'INSERT INTO "VIP027" ( SANG, SANG_LED, UNP, UNP_LED) VALUES ($1, $2, $3, $4) RETURNING *',
+            [SANG, SANG_LED, UNP, UNP_LED]
         );
 
         return new Response(JSON.stringify(result.rows[0]), {
@@ -53,8 +53,8 @@ export async function POST(request) {
 
 export async function GET(request) {
     try {
-        // Query the database for the latest led_status
-        const result = await client.query('SELECT led_status FROM "PHU021" WHERE id = 1 ORDER BY id DESC LIMIT 1');
+        // Query the database for the latest LED_Status
+        const result = await client.query('SELECT LED_Status FROM "VIP027" WHERE id = 1 ORDER BY id DESC LIMIT 1');
 
         if (result.rows.length === 0) {
             return new Response(JSON.stringify({ error: "No data found" }), {
@@ -63,9 +63,9 @@ export async function GET(request) {
             });
         }
 
-        const ledStatus = result.rows[0].led_status;
+        const ledStatus = result.rows[0].LED_Status;
 
-        return new Response(JSON.stringify({ led_status: ledStatus }), {
+        return new Response(JSON.stringify({ LED_Status: ledStatus }), {
             status: 200,
             headers: {
                 ...corsHeaders,
@@ -88,12 +88,12 @@ export async function PUT(request) {
     try {
         // Parse the request body as JSON
         const requestBody = await request.json();
-        const { led_status } = requestBody;
+        const { LED_Status } = requestBody;
 
-        // Update the led_status in the database
+        // Update the LED_Status in the database
         const result = await client.query(
-            'UPDATE "PHU021" SET led_status = $1 WHERE id = 1  RETURNING *',
-            [led_status]
+            'UPDATE "VIP027" SET LED_Status = $1 WHERE id = 1  RETURNING *',
+            [LED_Status]
         );
 
         // Check if update was successful
