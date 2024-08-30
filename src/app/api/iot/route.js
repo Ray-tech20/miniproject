@@ -54,7 +54,7 @@ export async function POST(request) {
 export async function GET(request) {
     try {
         // Query the database for the latest led_status
-        const result = await client.query('SELECT led_status FROM sensor_data WHERE id = 1 ORDER BY id DESC LIMIT 1');
+        const result = await client.query('SELECT led_status FROM "PHU021" WHERE id = 1 ORDER BY id DESC LIMIT 1');
 
         if (result.rows.length === 0) {
             return new Response(JSON.stringify({ error: "No data found" }), {
