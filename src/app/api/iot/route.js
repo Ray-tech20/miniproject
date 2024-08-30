@@ -21,13 +21,23 @@ const corsHeaders = {
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
+async function connectDatabase() {
+    try {
+        await client.connect();
+        console.log('Database connected');
+    } catch (error) {
+        console.error('Database connection error:', error);
+        throw new Error('Failed to connect to database');
+    }
+}
+
 export async function POST(request) {
     try {
-        // Connect to the database
+
         const requestBody = await request.json();
         const { SANG, SANG_LED, UNP, UNP_LED } = requestBody;
 
-        // Basic data validation
+        // Validate data
         if (typeof SANG !== 'number' || typeof SANG_LED !== 'number' || typeof UNP !== 'number' || typeof UNP_LED !== 'number') {
             return new Response(
                 JSON.stringify({ error: "Invalid data format" }),
@@ -41,13 +51,11 @@ export async function POST(request) {
             );
         }
 
-        // Insert new data into the table
         const result = await client.query(
             'INSERT INTO "VIP027" ("SANG", "SANG_LED", "UNP", "UNP_LED") VALUES ($1, $2, $3, $4) RETURNING "SANG", "SANG_LED", "UNP", "UNP_LED"',
             [SANG, SANG_LED, UNP, UNP_LED]
         );
 
-        // Respond with the inserted data
         return new Response(
             JSON.stringify(result.rows[0]),
             {
@@ -69,6 +77,8 @@ export async function POST(request) {
                 },
             }
         );
+    } finally {
+        await client.end(); // Make sure to close the client connection
     }
 }
 
