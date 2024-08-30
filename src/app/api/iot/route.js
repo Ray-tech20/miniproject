@@ -29,10 +29,11 @@ export async function POST(request) {
 
         // Insert new data into the table
         const result = await client.query(
-            'INSERT INTO "VIP027" ( SANG, SANG_LED, UNP, UNP_LED) VALUES ($1, $2, $3, $4) RETURNING *',
+            'INSERT INTO "VIP027" ("SANG", "SANG_LED", "UNP", "UNP_LED") VALUES ($1, $2, $3, $4) RETURNING "SANG", "SANG_LED", "UNP", "UNP_LED"',
             [SANG, SANG_LED, UNP, UNP_LED]
         );
 
+        // Respond with the inserted data
         return new Response(JSON.stringify(result.rows[0]), {
             status: 201,
             headers: {
@@ -49,12 +50,13 @@ export async function POST(request) {
         });
     }
 }
+
 //------------------------------------------------------------------------------------------------
 
 export async function GET(request) {
     try {
         // Query the database for the latest LED_Status
-        const result = await client.query('SELECT LED_Status FROM "VIP027" WHERE id = 1 ORDER BY id DESC LIMIT 1');
+        const result = await client.query('SELECT "LED_Status" FROM "VIP027" WHERE id = 1 ORDER BY id DESC LIMIT 1');
 
         if (result.rows.length === 0) {
             return new Response(JSON.stringify({ error: "No data found" }), {
@@ -92,7 +94,7 @@ export async function PUT(request) {
 
         // Update the LED_Status in the database
         const result = await client.query(
-            'UPDATE "VIP027" SET LED_Status = $1 WHERE id = 1  RETURNING *',
+            'UPDATE "VIP027" SET "LED_Status" = $1 WHERE id = 1  RETURNING *',
             [LED_Status]
         );
 
