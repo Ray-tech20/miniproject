@@ -13,29 +13,22 @@ const client = new Client({
 client.connect().catch((err) => {
     console.error("Database connection error:", err);
 });
-export const dynamic = "force-dynamic";
 
+// Define CORS headers
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
+export const dynamic = "force-dynamic";
 
-async function connectDatabase() {
-    try {
-        await client.connect();
-        console.log('Database connected');
-    } catch (error) {
-        console.error('Database connection error:', error);
-        throw new Error('Failed to connect to database');
-    }
-}
-
+// POST request handler
 export async function POST(request) {
     try {
         const requestBody = await request.json();
         const { SANG, SANG_LED, UNP, UNP_LED } = requestBody;
 
+        // Basic data validation
         if (typeof SANG !== 'number' || typeof SANG_LED !== 'number' || typeof UNP !== 'number' || typeof UNP_LED !== 'number') {
             return new Response(
                 JSON.stringify({ error: "Invalid data format" }),
@@ -59,6 +52,7 @@ export async function POST(request) {
             {
                 status: 201,
                 headers: {
+                    ...corsHeaders,
                     "Content-Type": "application/json",
                     "Cache-Control": "no-cache",
                 },
@@ -72,6 +66,7 @@ export async function POST(request) {
             {
                 status: 500,
                 headers: {
+                    ...corsHeaders,
                     "Content-Type": "application/json",
                 },
             }
@@ -79,12 +74,11 @@ export async function POST(request) {
     }
 }
 
-//------------------------------------------------------------------------------------------------
-
-export async function GET(request) {
+// GET request handler
+export async function GET() {
     try {
         // Query the database for the latest LED_Status
-        const result = await client.query('SELECT "LED_Status" FROM "VIP027" WHERE id = 1 ORDER BY id DESC LIMIT 1');
+        const result = await client.query('SELECT "LED_Status" FROM "VIP027" ORDER BY "Date" DESC LIMIT 1');
 
         if (result.rows.length === 0) {
             return new Response(JSON.stringify({ error: "No data found" }), {
@@ -111,18 +105,30 @@ export async function GET(request) {
         });
     }
 }
-//-----------------------------------------------------------------------------------
-// pages/api/updateLedStatus.js
 
+// PUT request handler (for updating LED status)
 export async function PUT(request) {
     try {
         // Parse the request body as JSON
         const requestBody = await request.json();
         const { LED_Status } = requestBody;
 
+        if (typeof LED_Status !== 'number') {
+            return new Response(
+                JSON.stringify({ error: "Invalid LED_Status format" }),
+                {
+                    status: 400,
+                    headers: {
+                        ...corsHeaders,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+        }
+
         // Update the LED_Status in the database
         const result = await client.query(
-            'UPDATE "VIP027" SET "LED_Status" = $1 WHERE id = 1  RETURNING *',
+            'UPDATE "VIP027" SET "LED_Status" = $1 WHERE id = 1 RETURNING *',
             [LED_Status]
         );
 

@@ -28,7 +28,7 @@ const HomePage = () => {
           throw new Error("Failed to fetch LED status");
         }
         const ledData = await response.json();
-        setLedStatus(ledData.led_status);
+        setLedStatus(ledData.LED_Status); // Update to use LED_Status from response
       } catch (error) {
         console.error("Error fetching LED status:", error);
         setError(error);
@@ -41,7 +41,7 @@ const HomePage = () => {
     const intervalId = setInterval(() => {
       fetchData();
       fetchLedStatus();
-    }, 5000);
+    }, 10000);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -53,7 +53,7 @@ const HomePage = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ led_status: value }),
+        body: JSON.stringify({ LED_Status: value }),
       });
 
       if (!response.ok) {
@@ -79,12 +79,12 @@ const HomePage = () => {
           {/* Card for Ultrasonic & LED Ultrasonic */}
           <div className="card flex-fill" style={{ backgroundColor: '#ffcc00', color: '#000' }}>
             <div className="card-body d-flex flex-column">
-              <h5 className="card-title border border-dark p-2 rounded">Ultrasonic & LED Ultrasonic</h5>
+              <h5 className="card-title border border-dark p-2 rounded">SANG & LED SANG</h5>
               <p className="card-text">
-                <strong>Ultrasonic:</strong> {data[0]?.ultrasonic || 'Loading...'} cm
+                <strong>SANG:</strong> {data[0]?.SANG || 'Loading...'} cm
               </p>
               <p className="card-text">
-                <strong>LED Ultrasonic Red:</strong> {data[0]?.led_ultrasonic || 'Loading...'}
+                <strong>LED SANG:</strong> {data[0]?.SANG_LED || 'Loading...'}
               </p>
             </div>
           </div>
@@ -94,12 +94,12 @@ const HomePage = () => {
           {/* Card for LDR & LED LDR Pin */}
           <div className="card flex-fill" style={{ backgroundColor: '#ffcc00', color: '#000' }}>
             <div className="card-body d-flex flex-column">
-              <h5 className="card-title border border-dark p-2 rounded">LDR & LED LDR Pin</h5>
+              <h5 className="card-title border border-dark p-2 rounded">UNP & LED UNP</h5>
               <p className="card-text">
-                <strong>LDR:</strong> {data[0]?.ldr || 'Loading...'}
+                <strong>UNP:</strong> {data[0]?.UNP || 'Loading...'}
               </p>
               <p className="card-text">
-                <strong>LED LDR Pin Yellow:</strong> {data[0]?.led_ldr_pin || 'Loading...'}
+                <strong>LED UNP:</strong> {data[0]?.UNP_LED || 'Loading...'}
               </p>
             </div>
           </div>
@@ -111,7 +111,7 @@ const HomePage = () => {
             <div className="card-body d-flex flex-column">
               <h5 className="card-title border border-dark p-2 rounded">LED Status & Controls</h5>
               <p className="card-text">
-                <strong>LED Status Green:</strong>{" "}
+                <strong>LED Status:</strong>{" "}
                 {ledStatus !== null ? ledStatus : "Loading..."}
               </p>
               <div className="d-flex gap-3 mt-auto">

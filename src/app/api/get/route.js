@@ -31,7 +31,16 @@ export async function GET() {
             LIMIT 1
         `);
 
-        return new Response(JSON.stringify(result.rows), {
+        // Check if data is available
+        if (result.rows.length === 0) {
+            return new Response(JSON.stringify({ error: "No data found" }), {
+                status: 404,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+        }
+
+        // Return the latest data
+        return new Response(JSON.stringify(result.rows[0]), { // Use result.rows[0] for single latest entry
             status: 200,
             headers: {
                 ...corsHeaders,
