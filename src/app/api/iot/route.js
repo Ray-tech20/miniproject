@@ -23,9 +23,23 @@ const corsHeaders = {
 
 export async function POST(request) {
     try {
-        // Parse the request body as JSON
+        // Connect to the database
         const requestBody = await request.json();
         const { SANG, SANG_LED, UNP, UNP_LED } = requestBody;
+
+        // Basic data validation
+        if (typeof SANG !== 'number' || typeof SANG_LED !== 'number' || typeof UNP !== 'number' || typeof UNP_LED !== 'number') {
+            return new Response(
+                JSON.stringify({ error: "Invalid data format" }),
+                {
+                    status: 400,
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Cache-Control": "no-cache",
+                    },
+                }
+            );
+        }
 
         // Insert new data into the table
         const result = await client.query(
@@ -34,20 +48,27 @@ export async function POST(request) {
         );
 
         // Respond with the inserted data
-        return new Response(JSON.stringify(result.rows[0]), {
-            status: 201,
-            headers: {
-                ...corsHeaders,
-                "Content-Type": "application/json",
-                "Cache-Control": "no-cache"
-            },
-        });
+        return new Response(
+            JSON.stringify(result.rows[0]),
+            {
+                status: 201,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Cache-Control": "no-cache",
+                },
+            }
+        );
     } catch (error) {
         console.error("Error inserting data:", error);
-        return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return new Response(
+            JSON.stringify({ error: "Internal Server Error" }),
+            {
+                status: 500,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
     }
 }
 
