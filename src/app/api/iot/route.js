@@ -92,7 +92,7 @@ export async function PUT(request) {
 
         // Update the led_status in the database
         const result = await client.query(
-            'UPDATE sensor_data SET led_status = $1 WHERE id = 1  RETURNING *',
+            'UPDATE "PHU021" SET led_status = $1 WHERE id = 1  RETURNING *',
             [led_status]
         );
 
