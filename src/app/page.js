@@ -21,6 +21,12 @@ const HomePage = () => {
         };
 
         fetchData();
+        const intervalId = setInterval(() => {
+          fetchData();
+        }, 5000); // 10 seconds
+    
+        // Clear interval on component unmount
+        return () => clearInterval(intervalId);
     }, []); // Empty dependency array means this effect runs once on mount
 
     // ฟังก์ชันเพื่ออัปเดตค่า 0 หรือ 1 ไปที่ API
