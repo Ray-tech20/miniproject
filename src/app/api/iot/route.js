@@ -33,11 +33,9 @@ async function connectDatabase() {
 
 export async function POST(request) {
     try {
-
         const requestBody = await request.json();
         const { SANG, SANG_LED, UNP, UNP_LED } = requestBody;
 
-        // Validate data
         if (typeof SANG !== 'number' || typeof SANG_LED !== 'number' || typeof UNP !== 'number' || typeof UNP_LED !== 'number') {
             return new Response(
                 JSON.stringify({ error: "Invalid data format" }),
@@ -67,7 +65,8 @@ export async function POST(request) {
             }
         );
     } catch (error) {
-        console.error("Error inserting data:", error);
+        console.error("Error inserting data:", error.message);
+        console.error("Stack trace:", error.stack);
         return new Response(
             JSON.stringify({ error: "Internal Server Error" }),
             {
@@ -77,8 +76,6 @@ export async function POST(request) {
                 },
             }
         );
-    } finally {
-        await client.end(); // Make sure to close the client connection
     }
 }
 
